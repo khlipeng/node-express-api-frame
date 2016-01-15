@@ -1,0 +1,14 @@
+# MacOS
+.DS_Store
+
+# Logs
+logs
+*.log
+*.pid
+*.seed
+*.idea
+
+node_modules
+
+config/*
+!config/_sample.json
