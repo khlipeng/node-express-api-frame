@@ -1,0 +1,19 @@
+[{
+	"id": 1,
+	"name": "张三",
+	"sex": 1,
+	"age": 23,
+  "email": "lp@kuhui.com.cn"
+},{
+	"id": 2,
+	"name": "李四",
+	"sex": 1,
+	"age": 29,
+  "email": "lp@kuhui.com.cn"
+},{
+	"id": 3,
+	"name": "王五",
+	"sex": 2,
+	"age": 24,
+  "email": "lp@kuhui.com.cn"
+}]

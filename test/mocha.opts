@@ -1,0 +1,4 @@
+--require should
+--require env
+-R spec
+--ui bdd
