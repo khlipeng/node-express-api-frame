@@ -5,6 +5,7 @@ var app = module.exports = express();
 var expressValidator = require('express-validator');
 var bodyParser = require('body-parser');
 var multer  = require('multer');
+var ejs = require('ejs');
 
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
@@ -21,7 +22,6 @@ app.use(expressValidator({
  }
 }));
 
-var ejs = require('ejs');
 app.use(require('morgan')('dev'));
 
 
@@ -38,6 +38,7 @@ require('./models');
 
 app.engine('.html', ejs.__express);
 app.set('view engine', 'html');
+
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
   err.status = 404;

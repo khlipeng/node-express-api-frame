@@ -11,3 +11,18 @@
 
 ### 4. 运行
 * 命令 : `npm start`
+
+## 注意事项：
+##### `ejs` 为需使用模板引擎，如果不需要使用模板引擎，可将 `app.js` 中的下列代码注释：
+
+> var ejs = require('ejs');
+>
+> app.engine('.html', ejs.__express);
+>
+> app.set('view engine', 'html');
+
+##### `express-validator` 为认证插件
+* wiki : `https://github.com/ctavan/express-validator/blob/master/README.md`
+
+##### `mocha` 为自动化测试工具
+* wiki : `https://github.com/mochajs/mocha/wiki`
