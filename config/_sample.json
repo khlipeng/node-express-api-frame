@@ -1,0 +1,21 @@
+{
+	"mongodb": {
+		"host": "localhost",
+  		"database": "database"
+	},
+
+  "logMongodb": {
+    "host": "localhost",
+    "database": "database_log"
+  },
+
+	"redis": {
+    	"host": "localhost",
+    	"port": 6379,
+    	"databaseIndex": 1
+  	},
+    "bcrypt": {
+      "rounds": 1
+    },
+  	"sessionSecret": "sessionSecret"
+  }
