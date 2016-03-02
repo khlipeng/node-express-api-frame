@@ -1,0 +1,27 @@
+[{ "_id" :  "56d6feccaf0b407426569f23" ,
+  "email" : "one@qq.com",
+  "name" : "leep1",
+  "password" : "123456",
+  "isDeleted" : false,
+  "createdTime" : 1456930508016,
+  "role" : "student",
+  "_version" : 0
+ },{ "_id" :  "56d6feccaf0b417446569f23" ,
+  "email" : "two@qq.com",
+  "name" : "leep2",
+  "password" : "123456",
+  "isDeleted" : false,
+  "createdTime" : 1456930508016,
+  "role" : "student",
+  "_version" : 0
+ },{ "_id" :  "56d6feccaf0b417046569f23" ,
+  "email" : "3@qq.com",
+  "name" : "leep3",
+  "password" : "123456",
+  "isDeleted" : false,
+  "createdTime" : 1456930508016,
+  "role" : "teacher",
+  "_version" : 0
+ }
+
+ ]

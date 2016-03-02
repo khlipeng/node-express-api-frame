@@ -3,8 +3,6 @@ var app = module.exports = express();
 // var async = require('async');
 
 
-// var User = require('../models/user');
-
 app.param('userId', function(req, res, next, id) {
   User.findOne({
     _id: id
@@ -14,13 +12,17 @@ app.param('userId', function(req, res, next, id) {
   });
 });
 
+/*
+ * 注册会员
+ * @Params {String} name 用户名
+ * @Params {String} password 密码
+ * @Params {String} email 邮箱
+ */
 
-
-app.post('/', function(req, res) {
-  req.checkBody('name', {errcode: -1, errmsg: 'Name is required'}).notEmpty();
-  req.checkBody('password', {errcode: -1, errmsg: 'Password is required'}).notEmpty();
-  req.checkBody('email', {errcode: -1, errmsg: 'Email is required'}).notEmpty();
-
+app.post('/reg', function(req, res) {
+  req.checkBody('name', {errcode: 4010201, errmsg: 'Name is required'}).notEmpty();
+  req.checkBody('password', {errcode: 4010201, errmsg: 'Password is required'}).notEmpty();
+  req.checkBody('email', {errcode: 4010201, errmsg: 'Email is required'}).notEmpty();
 
   var errors = req.validationErrors();
   if (errors) {
@@ -54,7 +56,7 @@ app.post('/', function(req, res) {
       errcode: 0,
       data: user
     });   
-     
+
   });
 });
 
@@ -63,16 +65,10 @@ app.post('/', function(req, res) {
  * @Params {String} name 用于检测的用户名
  */
 app.post('/check_name', function(req, res){
-
-  var errors = [];
-  req.onValidationError(function(msg) {
-      errors.push(msg);
-  });
-
-  req.checkBody('name', { errcode: 4010201, errmsg: 'Invalid name'}).isValidName();
-
-  if(errors.length) {
-    return res.status(400).json(errors[0]);
+  req.checkBody('name', {errcode: -1, errmsg: 'Name is required'}).notEmpty();
+  var errors = req.validationErrors();
+  if (errors) {
+    return res.status(400).json(errors[0]['msg']);
   }
 
   User.findOne({
@@ -98,6 +94,82 @@ app.post('/check_name', function(req, res){
   });
 });
 
+/*
+ * 用户登录
+ * @Params {String} email 邮箱
+ * @Params {String} password 密码
+ */
+app.post('/login', function(req, res) {
+  delete req.session.uid;
+
+  if (req.body && req.body.email && req.body.password) {
+    User.findOne({
+      email: req.body.email.toLowerCase()
+    }, function(err, user) {
+      if (err) {
+        return res.status(401).json({
+          errcode: 4010001,
+          errmsg: err
+        }); 
+      }
+
+      if(!user) {
+        return res.status(401).json({
+          errcode: 4030210,
+          errmsg: 'Email not exist'
+        });
+      }
+
+      user.comparePassword(req.body.password, function(err, result) {
+        if (err) {
+          return res.status(401).json({
+            errcode: 4010001,
+            errmsg: err
+          }); 
+        }
+        if (!result) {
+          return res.status(401).json({
+            errcode: 4030211,
+            errmsg: 'Wrong email or password'
+          });
+        }
+
+        req.session.uid = user.id;
+        if (req.body.remember) {
+          req.session.cookie.expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+        }
+        user = user.toJSON();
+        user.sessionID = req.sessionID;
+        res.json({
+          errcode: 0,
+          data: user
+        });
+      });
+
+    });
+  } else {
+    res.status(401).json({
+      errcode: 4030211,
+      errmsg: 'Wrong email or password'
+    });
+  }
+});
+/*
+ * 查看个人信息
+ */
+app.get('/me', function(user, req, res) {
+  if (!user) {
+    return res.status(401).json({
+      errcode: -2,
+      errmsg: 'No permission'
+    });
+  }
+
+  res.json({
+    errcode: 0,
+    data: user
+  });
+});
 
 /*
  * 修改密码
@@ -113,18 +185,14 @@ app.put('/password', function(user, req, res){
     });
   }
 
-  var errors = [];
-  req.onValidationError(function(msg) {
-    errors.push(msg);
-  });
-
-  req.checkBody('oldpassword', {errcode: 4010201, errmsg: 'Old password short'}).len(6, 20);
-  req.checkBody('newpassword', {errcode: 4010201, errmsg: 'New password short'}).len(6, 20);
-  req.checkBody('repassword', {errcode: 4010201, errmsg: 'Confirmation password should equal newpassword'}).equals(req.body.newpassword);
-
-  if (errors.length) {
-    return res.status(400).json(errors[0]);
+  req.checkBody('oldpassword', {errcode: 4010201, errmsg: 'oldpassword is required'}).notEmpty();
+  req.checkBody('newpassword', {errcode: 4010201, errmsg: 'newpassword is required'}).notEmpty();
+  req.checkBody('repassword', {errcode: 4010201, errmsg: 'repassword is required'}).notEmpty();
+  var errors = req.validationErrors();
+  if (errors) {
+    return res.status(400).json(errors[0]['msg']);
   }
+
 
   User.findOne({
     email: user.email
@@ -162,53 +230,13 @@ app.put('/password', function(user, req, res){
   });
 });
 
-app.get('/me', function(user, req, res) {
-  if (!user) {
-    return res.status(401).json({
-      errcode: -2,
-      errmsg: 'No permission'
-    });
-  }
-
+/*
+ * 登出接口
+ */
+app.delete('/', function(req, res) {
+  delete req.session.uid;
   res.json({
     errcode: 0,
-    data: user
+    data: {}
   });
 });
-
-app.get('/me/members', function(user, req, res) {
-  if (!user || (user.role !== 'admin' && user.role !== 'assistant')) {
-    return res.status(401).json({
-      errcode: -2,
-      errmsg: 'No permission'
-    });
-  }
-
-  var query = User.find({
-    clients: user.clients
-  });
-
-  if (req.query.name) {
-    query.and({
-      name: {
-        $regex: req.query.name
-      }
-    });
-  }
-
-  query.sort('-createdTime')
-  .exec(function(err, users) {
-    if(err) {
-      return res.status(400).json({
-        errcode: 4010001,
-        errmsg: err
-      });
-    }
-
-    res.json({
-      errcode: 0,
-      data: users
-    });
-  });
-});
-
