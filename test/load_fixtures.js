@@ -9,32 +9,27 @@ var fixtures = module.exports = require('require-directory')(module, path.join(_
  */
 
 //暂时注释
-// var load = function(done) {
-//   async.each(Object.keys(fixtures), function(key, callback) {
-// 	var moduleName = lingo.capitalize(key);
-// 	GLOBAL[moduleName].create(fixtures[key], callback);
-//   }, done);
-// };
+var load = function(done) {
+  async.each(Object.keys(fixtures), function(key, callback) {
+	var moduleName = lingo.capitalize(key);
+	GLOBAL[moduleName].create(fixtures[key], callback);
+  }, done);
+};
 
-// var clear = function(deepClean, done) {
-//   if (typeof deepClean === 'function') {
-//     done = deepClean;
-//     deepClean = null;
-//   }
-//   if (deepClean === true) {
-//     return DB.connection.db.dropDatabase(done);
-//   }
-
-//   async.each(Object.keys(fixtures), function(key, callback) {
-//     var modelName = lingo.capitalize(key);
-//     GLOBAL[modelName].remove(callback);
-//   }, done);
-// };
-
-var clear = function(done){
+var clear = function(deepClean, done) {
+  if (typeof deepClean === 'function') {
+    done = deepClean;
+    deepClean = null;
+  }
+  if (deepClean === true) {
     return DB.connection.db.dropDatabase(done);
+  }
 
-}
+  async.each(Object.keys(fixtures), function(key, callback) {
+    var modelName = lingo.capitalize(key);
+    GLOBAL[modelName].remove(callback);
+  }, done);
+};
 
 if (require.main === module) {
   if (process.env.NODE_ENV === 'production') {
@@ -57,7 +52,7 @@ if (require.main === module) {
 } else {
   // beforeEach();
   // afterEach();
-  	// beforeEach(load);
+  	beforeEach(load);
   	afterEach(clear);
 
 
